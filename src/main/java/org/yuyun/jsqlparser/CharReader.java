@@ -89,19 +89,4 @@ public class CharReader {
             return ch;
         }
     }
-
-    public static void main(String[] args) throws IOException {
-//        CharReader reader1 = new CharReader(new File("z:/ab.txt"), StandardCharsets.UTF_8);
-//        CharReader reader1 = new CharReader("abcd我f\nuvw\n\r\nabc");
-//        Token token = new Token();
-//        token.initStart(reader1);
-//        for(;;) {
-//            System.out.printf("(%d, %d)", reader1.line, reader1.column);
-//
-//            char ch = reader1.read();
-//            if(ch == 0)
-//                break;
-//            System.out.println(ch);
-//        }
-    }
 }
