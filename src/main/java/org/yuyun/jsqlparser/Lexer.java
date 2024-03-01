@@ -29,11 +29,11 @@ public class Lexer {
     }
 
     private void readLineComment() {
-        Token token = new Token(TokenType.COMMENT, TokenSubType.LINE_COMMENT);
+        Token token = new Token(charReader, TokenType.COMMENT, TokenSubType.LINE_COMMENT);
 
-        token.initStart(charReader);
+        token.initStart();
         charReader.skip(1);
-        token.initEnd(charReader);
+        token.initEnd();
         this.tokens.add(token);
         charReader.skip(1);
 
@@ -42,18 +42,18 @@ public class Lexer {
             if (ch == '\r' || ch == '\n' || ch == 0)
                 break;
             else {
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
             }
         }
     }
 
     private void readBlockComment() {
-        Token token = new Token(TokenType.COMMENT, TokenSubType.BLOCK_COMMENT);
+        Token token = new Token(charReader, TokenType.COMMENT, TokenSubType.BLOCK_COMMENT);
 
-        token.initStart(charReader);
+        token.initStart();
         charReader.skip(1);
-        token.initEnd(charReader);
+        token.initEnd();
         this.tokens.add(token);
         charReader.skip(1);
 
@@ -61,30 +61,30 @@ public class Lexer {
             char ch1 = charReader.peek();
             char ch2 = charReader.peek(1);
             if (ch1 == 0 || ch2 == 0) {
-                throw new RuntimeException(String.format("%s(%s: %s): End of file found before end of comment.", token.getFilename(), token.getEndLine(), token.getEndColumn()));
+                throw new RuntimeException(String.format("%s(%s: %s): End of file found before end of comment.", token.getFilename(), token.getBeginLine(), token.getBeginColumn()));
             } else if (ch1 == '*' && ch2 == '/') {
                 charReader.skip(1);
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
                 break;
             } else {
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
             }
         }
     }
 
     private void readIdentifierOrKeyword() {
-        Token token = new Token(TokenType.IDENTIFIER);
+        Token token = new Token(charReader, TokenType.IDENTIFIER);
 
-        token.initStart(charReader);
-        token.initEnd(charReader);
+        token.initStart();
+        token.initEnd();
         this.tokens.add(token);
 
         while (true) {
             char ch = charReader.peek();
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_' || ch >= 0x100) {
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
             } else
                 break;
@@ -95,10 +95,10 @@ public class Lexer {
     }
 
     private void readString() {
-        Token token = new Token(TokenType.LITERAL, TokenSubType.STRING);
+        Token token = new Token(charReader, TokenType.LITERAL, TokenSubType.STRING);
 
-        token.initStart(charReader);
-        token.initEnd(charReader);
+        token.initStart();
+        token.initEnd();
         this.tokens.add(token);
 
         char quote = charReader.read();
@@ -106,42 +106,52 @@ public class Lexer {
         while (true) {
             char ch = charReader.peek();
             if (ch == 0 || ch == '\n') {
-                throw new RuntimeException(String.format("%s(%s: %s): Unterminated string.", token.getFilename(), token.getEndLine(), token.getEndColumn()));
+                throw new RuntimeException(String.format("%s(%s: %s): Unterminated string.", token.getFilename(), token.getBeginLine(), token.getBeginColumn()));
             } else if (ch == '\'') {
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
 
                 if (quote == '\'') {
                     ch = charReader.peek();
                     if (ch == '\'') {
-                        token.initEnd(charReader);
+                        token.initEnd();
                         charReader.skip(1);
                     } else
                         break;
                 }
             } else if (ch == '"') {
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
                 if (quote == '"')
                     break;
+            } else if(ch == '`') {
+                token.initEnd();
+                charReader.skip(1);
+                if (quote == '`')
+                    break;
             } else {
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
             }
+        }
+
+        if(quote == '"' || quote == '`') {
+            token.setType(TokenType.IDENTIFIER);
+            token.setSubType(TokenSubType.NONE);
         }
     }
 
     private void readNumber() {
-        Token token = new Token(TokenType.LITERAL, TokenSubType.NUMBER);
+        Token token = new Token(charReader, TokenType.LITERAL, TokenSubType.NUMBER);
 
-        token.initStart(charReader);
-        token.initEnd(charReader);
+        token.initStart();
+        token.initEnd();
         this.tokens.add(token);
 
         while (true) {
             char ch = charReader.peek();
             if ((ch >= '0' && ch <= '9') || ch == '.') {
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
             } else
                 break;
@@ -149,10 +159,10 @@ public class Lexer {
     }
 
     private void readSymbol() {
-        Token token = new Token(TokenType.SYMBOL);
+        Token token = new Token(charReader, TokenType.SYMBOL);
 
-        token.initStart(charReader);
-        token.initEnd(charReader);
+        token.initStart();
+        token.initEnd();
         this.tokens.add(token);
 
         String symbol = "";
@@ -163,7 +173,7 @@ public class Lexer {
 
             symbol += ch;
             if (Constants.SYMBOLS.contains(symbol)) {
-                token.initEnd(charReader);
+                token.initEnd();
                 charReader.skip(1);
             } else
                 break;
@@ -205,7 +215,7 @@ public class Lexer {
             }
 
             //字符串
-            if (ch == '"' || ch == '\'') {
+            if (ch == '"' || ch == '\'' || ch == '`') {
                 readString();
                 continue;
             }

@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class Token {
+    private CharReader charReader;
     private String filename;
     private String image;
     private int beginLine;
@@ -15,27 +16,38 @@ public class Token {
     private TokenType type;
     private TokenSubType subType;
 
-    public Token(TokenType type) {
+    public Token(CharReader charReader, TokenType type) {
+        this.charReader = charReader;
         this.type = type;
         this.subType = TokenSubType.NONE;
     }
 
-    public Token(TokenType type, TokenSubType subType) {
+    public Token(CharReader charReader, TokenType type, TokenSubType subType) {
+        this.charReader = charReader;
         this.type = type;
         this.subType = subType;
     }
 
-    public void initStart(CharReader reader) {
-        this.filename = reader.getChunkName();
-        this.beginLine = reader.getLine();
-        this.beginColumn = reader.getColumn();
-        this.beginPosition = reader.getPosition();
+    public void initStart() {
+        this.filename = this.charReader.getChunkName();
+        this.beginLine = this.charReader.getLine();
+        this.beginColumn = this.charReader.getColumn();
+        this.beginPosition = this.charReader.getPosition();
+        this.endLine = this.charReader.getLine();
+        this.endColumn = this.charReader.getColumn();
+        this.endPosition = this.charReader.getPosition();
     }
 
-    public void initEnd(CharReader reader) {
-        this.endLine = reader.getLine();
-        this.endColumn = reader.getColumn();
-        this.endPosition = reader.getPosition();
-        this.image = reader.substring(this.beginPosition, this.endPosition);
+    public void initEnd() {
+        this.endLine = this.charReader.getLine();
+        this.endColumn = this.charReader.getColumn();
+        this.endPosition = this.charReader.getPosition();
+
+    }
+
+    public String getImage() {
+        if(this.image == null)
+            this.image = this.charReader.substring(this.beginPosition, this.endPosition);
+        return this.image;
     }
 }

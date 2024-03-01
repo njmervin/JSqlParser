@@ -287,7 +287,6 @@ public class Constants {
             "call",
             "comment",
             "commit",
-            "connect",
             "create",
             "declare",
             "delete",
