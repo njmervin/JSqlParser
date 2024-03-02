@@ -1,3 +1,15 @@
+# SQL Parser for Java
+
+## Use in maven
+```xml
+<dependency>
+    <groupId>org.yuyun</groupId>
+    <artifactId>JSqlParser</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+## Sample
 ```java
 Reader reader = new InputStreamReader(Files.newInputStream(Paths.get("Z:\\union09.sql")), StandardCharsets.UTF_8);
 char[] cbuf = new char[128*1024];
