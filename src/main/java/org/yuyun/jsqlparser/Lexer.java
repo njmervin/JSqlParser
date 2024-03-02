@@ -186,47 +186,47 @@ public class Lexer {
             ch = charReader.peek();
             ;
 
-            //结尾
+            //EOF
             if (ch == 0)
                 break;
 
-            //跳过空白
+            //skip tab, space, cr, lf etc. char
             if (ch <= ' ') {
                 skipBlank();
                 continue;
             }
 
-            //跳过行注释
+            //read line comment
             if (ch == '-' && charReader.peek(1) == '-') {
                 readLineComment();
                 continue;
             }
 
-            //跳过块注释
+            //read block comment
             if (ch == '/' && charReader.peek(1) == '*') {
                 readBlockComment();
                 continue;
             }
 
-            //标识符或关键字
+            //read identifier ( or keyword )
             if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' || ch > 0x100) {
                 readIdentifierOrKeyword();
                 continue;
             }
 
-            //字符串
+            //read string ( or identifier )
             if (ch == '"' || ch == '\'' || ch == '`') {
                 readString();
                 continue;
             }
 
-            //数字
+            //read number
             if (ch >= '0' && ch <= '9') {
                 readNumber();
                 continue;
             }
 
-            //符号
+            //read symbol
             if (symbolCharSet.contains(ch)) {
                 readSymbol();
                 continue;
